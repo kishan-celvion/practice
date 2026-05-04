@@ -1,5 +1,5 @@
 from random import random
-from fastapi import FastAPI, Query # type: ignore
+from fastapi import FastAPI, Query, Path  # type: ignore
 from enum import Enum
 from pydantic import BaseModel # type: ignore
 from typing import Annotated
@@ -157,134 +157,174 @@ async def root():
 
 
 # Query parameters and string validations (QPnSV)
-@app.get("/items/")
-async def read_items(q: str | None = None):
-    result = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
-    if q:
-        result.update({"q": q})
-    return result
+# @app.get("/items/")
+# async def read_items(q: str | None = None):
+#     result = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+#     if q:
+#         result.update({"q": q})
+#     return result
 
 # QPnSV like min_length, max_length, and pattern with Query and Annotated 
-@app.get("/items/")
-async def read_items(q: Annotated[str | None, Query(min_length=3, max_length=50, pattern="^fixedquery$")] = None):
-    result = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
-    if q:
-        result.update({"q": q})
-    return result
+# @app.get("/items/")
+# async def read_items(q: Annotated[str | None, Query(min_length=3, max_length=50, pattern="^fixedquery$")] = None):
+#     result = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+#     if q:
+#         result.update({"q": q})
+#     return result
 
 # QPnSV with Query and default values
-@app.get("/items/")
-async def read_items(q: str | None = Query(default=None, max_length=50)):
-    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
-    if q:
-        results.update({"q": q})
-    return results
+# @app.get("/items/")
+# async def read_items(q: str | None = Query(default=None, max_length=50)):
+#     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+#     if q:
+#         results.update({"q": q})
+#     return results
 
 # QPnSV with Query and type conversion without default values
-@app.get("/items/")
-async def read_items(q: Annotated[str, Query(min_length=3)] = "fixedquery"):
-    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
-    if q:
-        results.update({"q": q})
-    return results
+# @app.get("/items/")
+# async def read_items(q: Annotated[str, Query(min_length=3)] = "fixedquery"):
+#     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+#     if q:
+#         results.update({"q": q})
+#     return results
 
 # QPnSV with Query and type conversion without default values
-@app.get("/items/")
-async def read_items(q: Annotated[str, Query(min_length=3)]):
-    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
-    if q:
-        results.update({"q": q})
-    return results
+# @app.get("/items/")
+# async def read_items(q: Annotated[str, Query(min_length=3)]):
+#     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+#     if q:
+#         results.update({"q": q})
+#     return results
 
 # QPnSV with Query and type conversion without default values and with None as default value
-@app.get("/items/")
-async def read_items(q: Annotated[str | None, Query(min_length=3)]):
-    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
-    if q:
-        results.update({"q": q})
-    return results
+# @app.get("/items/")
+# async def read_items(q: Annotated[str | None, Query(min_length=3)]):
+#     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+#     if q:
+#         results.update({"q": q})
+#     return results
 
 # QPnSV with Query and type conversion without default values and with None as default value and with list of strings
-@app.get("/items/")
-async def read_items(q: Annotated[list[str] | None, Query()] = None):
-    query_items = {"q": q}
-    return query_items
+# @app.get("/items/")
+# async def read_items(q: Annotated[list[str] | None, Query()] = None):
+#     query_items = {"q": q}
+#     return query_items
 
 # QPnSV with Query and type conversion without default values and with None as default value and with list of strings without None as default value
-@app.get("/items/")
-async def read_items(q: Annotated[list[str], Query()] = ["foo", "bar"]):
-# async def read_items(q: Annotated[list, Query()] = []):
-    query_items = {"q": q}
-    return query_items
+# @app.get("/items/")
+# async def read_items(q: Annotated[list[str], Query()] = ["foo", "bar"]):
+# # async def read_items(q: Annotated[list, Query()] = []):
+#     query_items = {"q": q}
+#     return query_items
 
 # Declare more metadata for query parameters
-@app.get("/items/")
-async def read_items(
-    q: Annotated[str | None, 
-                 Query(title="Query string", description="Query string for the items to search in the database that have a good match", min_length=3)] = None,
-):
-    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
-    if q:
-        results.update({"q": q})
-    return results
+# @app.get("/items/")
+# async def read_items(
+#     q: Annotated[str | None, 
+#                  Query(title="Query string", description="Query string for the items to search in the database that have a good match", min_length=3)] = None,
+# ):
+#     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+#     if q:
+#         results.update({"q": q})
+#     return results
 
 # Alias parameters --> http://127.0.0.1:8000/items/?item-query=foobaritems
-@app.get("/items/")
-async def read_items(q: Annotated[str | None, Query(alias="item-query")] = None):
-    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
-    if q:
-        results.update({"q": q})
-    return results
+# @app.get("/items/")
+# async def read_items(q: Annotated[str | None, Query(alias="item-query")] = None):
+#     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+#     if q:
+#         results.update({"q": q})
+#     return results
 
 # Deprecating parameters --> http://127.0.0.1:8000/docs#/default/read_items_items__get
-@app.get("/items/")
-async def read_items(
-    q: Annotated[
-        str | None,
-        Query(
-            alias="item-query",
-            title="Query string",
-            description="Query string for the items to search in the database that have a good match",
-            min_length=3,
-            max_length=50,
-            pattern="^fixedquery$",
-            deprecated=True,
-        ),
-    ] = None,
-):
-    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+# @app.get("/items/")
+# async def read_items(
+#     q: Annotated[
+#         str | None,
+#         Query(
+#             alias="item-query",
+#             title="Query string",
+#             description="Query string for the items to search in the database that have a good match",
+#             min_length=3,
+#             max_length=50,
+#             pattern="^fixedquery$",
+#             deprecated=True,
+#         ),
+#     ] = None,
+# ):
+#     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+#     if q:
+#         results.update({"q": q})
+#     return results
+
+# Exclude parameters from OpenAPI --> http://127.0.0.1:8000/items/?hidden_query=foobaritems
+# @app.get("/items/")
+# async def read_items(hidden_query: Annotated[str | None, Query(include_in_schema=False)] = None,):
+#     if hidden_query:
+#         return {"hidden_query": hidden_query}
+#     else:
+#         return {"hidden_query": "Not found"}
+    
+# Custom Validation
+# data = {
+#     "isbn-9781529046137": "The Hitchhiker's Guide to the Galaxy",
+#     "imdb-tt0371724": "The Hitchhiker's Guide to the Galaxy",
+#     "isbn-9781439512982": "Isaac Asimov: The Complete Stories, Vol. 2",
+# }
+# def check_valid_id(id: str):
+#     if not id.startswith(("isbn-", "imdb-")):
+#         raise ValueError('Invalid ID format, it must start with "isbn-" or "imdb-"')
+#     return id
+# @app.get("/items/")
+# async def read_items(id: Annotated[str | None, AfterValidator(check_valid_id)] = None,):
+#     if id:
+#         item = data.get(id)
+#     else:
+#         id, item = random.choice(list(data.items()))
+#     return {"id": id, "name": item}
+
+
+
+
+# Path Parameters and Numeric Validations
+@app.get("/items/{item_id}")
+async def read_items(item_id: Annotated[int, Path(title="The ID of the item to get")], q: Annotated[str | None, Query(alias="item-query")] = None,):
+    results = {"item_id": item_id}
     if q:
         results.update({"q": q})
     return results
 
-# Exclude parameters from OpenAPI --> http://127.0.0.1:8000/items/?hidden_query=foobaritems
-@app.get("/items/")
-async def read_items(
-    hidden_query: Annotated[str | None, Query(include_in_schema=False)] = None,
-):
-    if hidden_query:
-        return {"hidden_query": hidden_query}
-    else:
-        return {"hidden_query": "Not found"}
-    
-# Custom Validation
-data = {
-    "isbn-9781529046137": "The Hitchhiker's Guide to the Galaxy",
-    "imdb-tt0371724": "The Hitchhiker's Guide to the Galaxy",
-    "isbn-9781439512982": "Isaac Asimov: The Complete Stories, Vol. 2",
-}
+# with default values / Order the parameters as you need
+@app.get("/items/{item_id}")
+async def read_items(q: str, item_id: Annotated[int, Path(title="The ID of the item to get")]):
+    results = {"item_id": item_id}
+    if q:
+        results.update({"q": q})
+    return results
 
-def check_valid_id(id: str):
-    if not id.startswith(("isbn-", "imdb-")):
-        raise ValueError('Invalid ID format, it must start with "isbn-" or "imdb-"')
-    return id
+@app.get("/items/{item_id}")
+# with default values and with None as default value / Order the parameters as you need, tricks
+# async def read_items(*, item_id: int = Path(title="The ID of the item to get"), q: str):
 
-@app.get("/items/")
-async def read_items(
-    id: Annotated[str | None, AfterValidator(check_valid_id)] = None,
-):
-    if id:
-        item = data.get(id)
-    else:
-        id, item = random.choice(list(data.items()))
-    return {"id": id, "name": item}
+# Better with Annotated
+async def read_items(item_id: Annotated[int, Path(title="The ID of the item to get")], q: str):
+    results = {"item_id": item_id}
+    if q:
+        results.update({"q": q})
+    return results
+
+@app.get("/items/{item_id}")
+# Number validations: greater than or equal
+# async def read_items(item_id: Annotated[int, Path(title="The ID of the item to get", ge=1)], q: str):
+
+# Number validations: greater than and less than or equal
+# async def read_items(item_id: Annotated[int, Path(title="The ID of the item to get", gt=0, le=1000)], q: str,):
+
+# Number validations: floats, greater than and less than
+async def read_items(*, item_id: Annotated[int, Path(title="The ID of the item to get", ge=0, le=1000)], q: str, size: Annotated[float, Query(gt=0, lt=10.5)],):
+    results = {"item_id": item_id}
+    if q:
+        results.update({"q": q})
+    if size:
+        results.update({"size": size})
+    return results
