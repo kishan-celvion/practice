@@ -1,8 +1,8 @@
 from random import random
 from fastapi import FastAPI, Query, Path  # type: ignore
 from enum import Enum
-from pydantic import BaseModel # type: ignore
-from typing import Annotated
+from pydantic import BaseModel, Field  # type: ignore
+from typing import Annotated, Literal
 from pydantic import AfterValidator # type: ignore
 
 # Enum class for model names
@@ -17,6 +17,14 @@ class Item(BaseModel):
     description: str | None = None
     price: float
     tax: float | None = None
+
+# Pydantic model for filter parameters
+class FilterParams(BaseModel):
+    model_config = {"extra": "forbid"}
+    limit: int = Field(100, gt=0, le=100)
+    offset: int = Field(0, ge=0)
+    order_by: Literal["created_at", "updated_at"] = "created_at"
+    tags: list[str] = []
 
 app = FastAPI()
 
@@ -286,34 +294,35 @@ async def root():
 
 
 
+
 # Path Parameters and Numeric Validations
-@app.get("/items/{item_id}")
-async def read_items(item_id: Annotated[int, Path(title="The ID of the item to get")], q: Annotated[str | None, Query(alias="item-query")] = None,):
-    results = {"item_id": item_id}
-    if q:
-        results.update({"q": q})
-    return results
+# @app.get("/items/{item_id}")
+# async def read_items(item_id: Annotated[int, Path(title="The ID of the item to get")], q: Annotated[str | None, Query(alias="item-query")] = None,):
+#     results = {"item_id": item_id}
+#     if q:
+#         results.update({"q": q})
+#     return results
 
 # with default values / Order the parameters as you need
-@app.get("/items/{item_id}")
-async def read_items(q: str, item_id: Annotated[int, Path(title="The ID of the item to get")]):
-    results = {"item_id": item_id}
-    if q:
-        results.update({"q": q})
-    return results
+# @app.get("/items/{item_id}")
+# async def read_items(q: str, item_id: Annotated[int, Path(title="The ID of the item to get")]):
+#     results = {"item_id": item_id}
+#     if q:
+#         results.update({"q": q})
+#     return results
 
-@app.get("/items/{item_id}")
+# @app.get("/items/{item_id}")
 # with default values and with None as default value / Order the parameters as you need, tricks
 # async def read_items(*, item_id: int = Path(title="The ID of the item to get"), q: str):
 
 # Better with Annotated
-async def read_items(item_id: Annotated[int, Path(title="The ID of the item to get")], q: str):
-    results = {"item_id": item_id}
-    if q:
-        results.update({"q": q})
-    return results
+# async def read_items(item_id: Annotated[int, Path(title="The ID of the item to get")], q: str):
+#     results = {"item_id": item_id}
+#     if q:
+#         results.update({"q": q})
+#     return results
 
-@app.get("/items/{item_id}")
+# @app.get("/items/{item_id}")
 # Number validations: greater than or equal
 # async def read_items(item_id: Annotated[int, Path(title="The ID of the item to get", ge=1)], q: str):
 
@@ -321,10 +330,20 @@ async def read_items(item_id: Annotated[int, Path(title="The ID of the item to g
 # async def read_items(item_id: Annotated[int, Path(title="The ID of the item to get", gt=0, le=1000)], q: str,):
 
 # Number validations: floats, greater than and less than
-async def read_items(*, item_id: Annotated[int, Path(title="The ID of the item to get", ge=0, le=1000)], q: str, size: Annotated[float, Query(gt=0, lt=10.5)],):
-    results = {"item_id": item_id}
-    if q:
-        results.update({"q": q})
-    if size:
-        results.update({"size": size})
-    return results
+# async def read_items(*, item_id: Annotated[int, Path(title="The ID of the item to get", ge=0, le=1000)], q: str, size: Annotated[float, Query(gt=0, lt=10.5)],):
+#     results = {"item_id": item_id}
+#     if q:
+#         results.update({"q": q})
+#     if size:
+#         results.update({"size": size})
+#     return results
+
+
+
+
+
+# Query Parameter Models
+# Query Parameters with a Pydantic Model --> http://127.0.0.1:8000/items/?limit=2&offset=1&order_by=created_at&tags=ilweufjkzx&tags=fklerjaqif&tags=ajkerhlvkstfdref
+@app.get("/items/")
+async def read_items(filter_query: Annotated[FilterParams, Query()]):
+    return filter_query
